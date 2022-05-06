@@ -8,6 +8,9 @@ from sqlalchemy.engine.url import URL
 class Settings(BaseSettings):
 
     API_PREFIX: str = "/api"
+    SECRET_KEY: str = "DO_NOT_USE_IN_PROD"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 20
 
     POSTGRES_USER: str = "root"
     POSTGRES_PASSWORD: str = "root"

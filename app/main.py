@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from .core.config import settings
 from .db.session import database, engine, metadata
-from .endpoints import index, user
+from .endpoints import auth, index, user
 
 metadata.create_all(bind=engine)
 app = FastAPI()
@@ -23,3 +23,4 @@ async def shutdown():
 
 app.include_router(index.router)
 app.include_router(user.router, prefix=f"{settings.API_PREFIX}/users", tags=["users"])  # noqa: E501
+app.include_router(auth.router, prefix=f"{settings.API_PREFIX}/auth", tags=["auth"])  # noqa: E501
