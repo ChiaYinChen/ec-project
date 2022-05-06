@@ -6,6 +6,13 @@ authors = ["carol <awdrg1210@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+fastapi = "^0.76.0"
+uvicorn = {version = "^0.17.6", extras = ["standard"]}
+databases = {version = "^0.5.5", extras = ["postgresql"]}
+ormar = {version = "^0.11.0", extras = ["postgresql"]}
+pydantic = {version = "^1.9.0", extras = ["email"]}
+python-jose = {version = "^3.3.0", extras = ["cryptography"]}
+passlib = {version = "^1.7.4", extras = ["bcrypt"]}
 
 [tool.poetry.dev-dependencies]
 
