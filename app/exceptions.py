@@ -53,6 +53,15 @@ class NotFoundError(CustomError):
         self.message = message
 
 
+class FormatError(CustomError):
+    """Format error exception."""
+
+    def __init__(self, message):
+        """Initialize."""
+        self.status_code = 400
+        self.message = message
+
+
 @app.exception_handler(CustomError)
 async def custom_error_handler(request: Request, exc: CustomError):
     """Handle custom error."""
