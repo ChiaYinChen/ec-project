@@ -1,4 +1,6 @@
 """CRUD for user."""
+from typing import Any
+
 from ..core.security import get_password_hash, verify_password
 from ..models.user import User as UserModel
 from ..schemas.user import UserCreate
@@ -15,14 +17,16 @@ class CRUDUser:
 
     @classmethod
     async def create(
-        cls, *, obj_in: UserCreate
+        cls, *, obj_in: UserCreate | dict[str, Any]
     ) -> UserModel:
         """Create a user."""
-        hashed_password = get_password_hash(obj_in.password)
-        db_obj = UserModel(
-            **obj_in.dict(exclude={"password"}),
-            hashed_password=hashed_password
-        )
+        if isinstance(obj_in, dict):
+            create_data = obj_in.copy()
+        else:
+            create_data = obj_in.dict()
+        hashed_password = get_password_hash(create_data["password"])
+        del create_data["password"]
+        db_obj = UserModel(**create_data, hashed_password=hashed_password)
         return await db_obj.save()
 
     @staticmethod
