@@ -2,10 +2,9 @@
 from fastapi import FastAPI
 
 from .core.config import settings
-from .db.session import database, engine, metadata
+from .db.session import database
 from .endpoints import auth, index, user
 
-metadata.create_all(bind=engine)
 app = FastAPI()
 
 
