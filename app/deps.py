@@ -1,11 +1,13 @@
 """Dependencies."""
-from fastapi import Depends
+from fastapi import Depends, Path
 from fastapi.security import OAuth2PasswordBearer
 
 from . import exceptions as exc
 from .core.config import settings
 from .core.security import decode_token
+from .crud.brand import CRUDBrand
 from .crud.user import CRUDUser
+from .models.brand import Brand as BrandModel
 from .models.user import User as UserModel
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -54,3 +56,15 @@ async def get_current_superuser_optional(
     if not CRUDUser.is_superuser(current_user):
         raise exc.UnauthorizedError("The user doesn't have enough privileges")
     return current_user
+
+
+async def get_active_brand(
+    brand_id: str = Path(..., description="The ID of the brand.")
+) -> BrandModel | None:
+    """Get active brand."""
+    brand = await CRUDBrand.get_by_id(brand_id=brand_id)
+    if brand is None:
+        raise exc.NotFoundError("Brand not found")
+    if not CRUDBrand.is_active(brand):
+        return None
+    return brand

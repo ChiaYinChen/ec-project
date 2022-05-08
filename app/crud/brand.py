@@ -7,7 +7,7 @@ from ..schemas.brand import BrandCreate, BrandUpdate
 class CRUDBrand:
 
     @classmethod
-    async def get_multi(
+    async def get_all(
         cls, *, user_obj: UserModel
     ) -> list[BrandModel]:
         """Get all brands that belong to current user."""
@@ -20,15 +20,16 @@ class CRUDBrand:
 
     @classmethod
     async def get_by_id(
-        cls, *, brand_id: str, user_obj: UserModel
+        cls, *, brand_id: str, user_obj: UserModel | None = None
     ) -> BrandModel | None:
         """Get the brand by brand id that belong to current user."""
-        return (
-            await BrandModel.objects
+        brand_obj = (
+            BrandModel.objects.select_related("products")
             .filter(BrandModel.id == brand_id)
-            .filter(BrandModel.owner.email == user_obj.email)
-            .get_or_none()
         )
+        if user_obj:
+            brand_obj = brand_obj.filter(BrandModel.owner.email == user_obj.email)  # noqa: E501
+        return await brand_obj.get_or_none()
 
     @classmethod
     async def get_by_name(

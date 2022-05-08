@@ -21,7 +21,7 @@ async def get_brands(
     current_user: UserModel = Depends(get_current_user)
 ) -> Any:
     """Get all brands that belong to current user."""
-    return await CRUDBrand.get_multi(user_obj=current_user)
+    return await CRUDBrand.get_all(user_obj=current_user)
 
 
 @router.post(
