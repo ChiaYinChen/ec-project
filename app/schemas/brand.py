@@ -39,3 +39,25 @@ class Brand(BrandCreate):
 
     class Config:
         orm_mode = True
+
+
+class Item(BaseModel):
+    """."""
+    id: UUID
+    title: str
+    description: str | None
+    discount_rate: float
+    image: str | None
+
+
+class BrandProduct(BaseModel):
+    """."""
+    id: UUID
+    name: str
+    about: str | None
+    social_media: str | None
+    website: str | None
+    email: str | None
+    phone: str | None
+    is_active: bool
+    products: list[Item]

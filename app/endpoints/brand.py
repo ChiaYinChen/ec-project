@@ -1,13 +1,15 @@
 """Router for brand."""
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 
 from .. import exceptions as exc
 from ..crud.brand import CRUDBrand
-from ..deps import get_current_user
+from ..deps import (get_active_brand, get_current_user,
+                    get_current_user_optional)
+from ..models.brand import Brand as BrandModel
 from ..models.user import User as UserModel
-from ..schemas.brand import Brand, BrandCreate, BrandUpdate
+from ..schemas.brand import Brand, BrandCreate, BrandProduct, BrandUpdate
 from ..schemas.message import Message
 
 router = APIRouter()
@@ -22,6 +24,36 @@ async def get_brands(
 ) -> Any:
     """Get all brands that belong to current user."""
     return await CRUDBrand.get_all(user_obj=current_user)
+
+
+@router.get(
+    "/{brand_id}",
+    response_model=BrandProduct,
+    summary="Get Brand (login optional)",
+)
+async def get_brand(
+    brand_id: str = Path(...),
+    current_user: UserModel | None = Depends(get_current_user_optional),
+    current_brand: BrandModel | None = Depends(get_active_brand)
+) -> Any:
+    """
+    Get all products of brand.
+
+    notes
+    - When the brand is not active, only user with
+      an access token can access endpoint. It will
+      also check if the brand belongs to current user.
+    """
+    if current_brand:
+        return current_brand
+    if current_user is None:
+        raise exc.UnauthorizedError(message="Inactive brand")
+    if current_user and current_brand is None:
+        brand = await CRUDBrand.get_by_id(
+            brand_id=brand_id, user_obj=current_user)
+        if brand is None:
+            raise exc.NotFoundError("Brand not found")
+        return brand
 
 
 @router.post(
@@ -48,6 +80,7 @@ async def create_brand(
 
     notes
     - Each brand must contain at least one contact info.
+    - User can only edit their own brands.
     """
     brand = await CRUDBrand.get_by_name(
         name=brand_in.name, user_obj=current_user)
@@ -61,8 +94,8 @@ async def create_brand(
     response_model=Brand
 )
 async def update_brand(
-    brand_id: str,
     brand_in: BrandUpdate,
+    brand_id: str = Path(...),
     current_user: UserModel = Depends(get_current_user)
 ) -> Any:
     """
@@ -75,6 +108,9 @@ async def update_brand(
     - **email**: brand's email
     - **phone**: brand's phone number
     - **is_active**: default to true
+
+    notes
+    - User can only edit their own brands.
     """
     brand = await CRUDBrand.get_by_id(
         brand_id=brand_id, user_obj=current_user)
@@ -88,10 +124,15 @@ async def update_brand(
     response_model=Message,
 )
 async def delete_brand(
-    brand_id: str,
+    brand_id: str = Path(...),
     current_user: UserModel = Depends(get_current_user)
 ) -> Any:
-    """Delete the brand that belong to current user."""
+    """
+    Delete the brand that belong to current user.
+
+    notes
+    - User can only delete their own products.
+    """
     brand = await CRUDBrand.get_by_id(
         brand_id=brand_id, user_obj=current_user)
     if brand is None:
