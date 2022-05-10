@@ -42,7 +42,7 @@ class Brand(BrandCreate):
 
 
 class Item(BaseModel):
-    """."""
+    """Product item."""
     id: UUID
     title: str
     description: str | None
@@ -51,7 +51,7 @@ class Item(BaseModel):
 
 
 class BrandProduct(BaseModel):
-    """."""
+    """Output (include products)."""
     id: UUID
     name: str
     about: str | None

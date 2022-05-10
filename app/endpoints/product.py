@@ -18,7 +18,8 @@ router = APIRouter()
 
 @router.get(
     "/{brand_id}/products",
-    response_model=list[Product]
+    response_model=list[Product],
+    summary="Get Products (login optional)",
 )
 async def get_products(
     brand_id: str = Path(...),
